@@ -1,5 +1,6 @@
 package az.company.bookservice.model.request;
 
+import az.company.bookservice.model.constants.ApplicationConstants;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,19 +11,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 
+import static az.company.bookservice.model.constants.ApplicationConstants.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateBookRequest {
-    @NotBlank(message = "Title is not be empty")
+    @NotBlank(message = Book_Title_Is_Required)
     private String title;
-    @NotBlank(message = "Author is not be empty")
+    @NotBlank(message = Book_Author_Is_Required)
     private String author;
-    @NotBlank(message = "ISBN is not be empty")
+    @NotBlank(message = Book_Description_Is_Required)
     private String description;
-    @NotNull(message = "Total copies is not be empty")
+    @NotNull(message = Book_TotalCopies_Is_Required)
     private Integer totalCopies;
     private Year publishedYear;
-    @NotNull(message = "Category id is not be empty")
+    @NotNull(message = Book_CategoryId_Is_Required)
     private Long categoryId;
 }

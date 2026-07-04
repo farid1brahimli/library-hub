@@ -9,7 +9,13 @@ import az.company.bookservice.model.request.CreateBookRequest;
 import az.company.bookservice.model.request.UpdateBookRequest;
 import az.company.bookservice.model.response.BookResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static az.company.bookservice.exception.enums.ErrorStatus.CATEGORY_NOT_FOUND;
 import static java.lang.String.format;
@@ -20,6 +26,7 @@ public class BookService {
     private final CategoryRepository categoryRepository;
     private final BookRepository bookRepository;
 
+    @CacheEvict(value = "books", allEntries = true)
     public BookResponse createBook(CreateBookRequest createBookRequest) {
        var category =  categoryRepository.findById(createBookRequest.getCategoryId())
                 .orElseThrow(() -> new NotFoundException(
@@ -33,6 +40,7 @@ public class BookService {
         return BookMapper.mapToBookResponse(entity);
     }
 
+    @CacheEvict(value = "books", allEntries = true)
     public BookResponse updateBook(UpdateBookRequest updateBookRequest) {
         var entity = bookRepository.findById(updateBookRequest.getId())
                 .orElseThrow(() -> new NotFoundException(
@@ -47,6 +55,38 @@ public class BookService {
         entity.setStatus(updateBookRequest.getStatus());
         bookRepository.save(entity);
         return BookMapper.mapToBookResponse(entity);
+    }
+
+    @CacheEvict(value = "books", allEntries = true)
+    public void deleteBook(Long id) {
+        var entity = bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        CATEGORY_NOT_FOUND.name(),
+                        format(CATEGORY_NOT_FOUND.getMessage(), id)));
+
+        entity.setStatus(BookStatus.INACTIVE);
+        bookRepository.save(entity);
+    }
+
+    public Page<BookResponse> getAllBooks(Pageable pageable, Long categoryId, String author) {
+        return bookRepository.findAll(pageable, categoryId, author)
+                .map(BookMapper::mapToBookResponse);
+    }
+
+    public BookResponse getBookById(Long id) {
+        var entity = bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        CATEGORY_NOT_FOUND.name(),
+                        format(CATEGORY_NOT_FOUND.getMessage(), id)));
+
+        return BookMapper.mapToBookResponse(entity);
+    }
+
+    public List<BookResponse> getAllBooksWithAuthorAndTitle(String author, String title) {
+        return bookRepository.findAllBooksWithAuthorAndTitle(author, title)
+                .stream()
+                .map(BookMapper::mapToBookResponse)
+                .toList();
     }
 }
 

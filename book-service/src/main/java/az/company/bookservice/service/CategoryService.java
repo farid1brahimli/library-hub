@@ -8,6 +8,8 @@ import az.company.bookservice.model.request.CreateCategoryRequest;
 import az.company.bookservice.model.request.UpdateCategoryRequest;
 import az.company.bookservice.model.response.CategoryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 import static az.company.bookservice.exception.enums.ErrorStatus.CATEGORY_NOT_FOUND;
 import static az.company.bookservice.mapper.CategoryMapper.*;
 import static java.lang.String.format;
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor

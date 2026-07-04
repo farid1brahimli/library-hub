@@ -1,8 +1,10 @@
 package az.company.bookservice.model.request;
 
+import static az.company.bookservice.model.constants.ApplicationConstants.*;
 import az.company.bookservice.model.enums.BookStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,17 +19,16 @@ import java.time.Year;
 public class UpdateBookRequest {
     @NotNull(message = "Book id is not be empty")
     private Long id;
-    @NotNull(message = "title id is not be empty")
+    @NotBlank(message = Book_Title_Is_Required)
     private String title;
-    @NotNull(message = "author id is not be empty")
+    @NotBlank(message = Book_Author_Is_Required)
     private String author;
-    @NotNull(message = "description id is not be empty")
+    @NotBlank(message = Book_Description_Is_Required)
     private String description;
-    @NotNull(message = "totalCopies id is not be empty")
+    @NotNull(message = Book_TotalCopies_Is_Required)
     private Integer totalCopies;
-    @NotNull(message = "publishedYear id is not be empty")
     private Year publishedYear;
-    @NotNull(message = "status id is not be empty")
+    @NotBlank(message = Book_Status_Is_Required)
     @Enumerated(EnumType.STRING)
     private BookStatus status;
 }

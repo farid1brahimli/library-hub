@@ -6,14 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import static az.company.bookservice.model.constants.ApplicationConstants.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCategoryRequest {
-
-    @NotNull(message = "Category id cannot be blank")
     private Long categoryId;
-    @NotBlank(message = "Category name cannot be blank")
+    @NotBlank(message = Category_CategoryId_Is_Required)
+    private String name;
+    @NotBlank(message = Category_Description_Is_Required)
     private String description;
 
 }
