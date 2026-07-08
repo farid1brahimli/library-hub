@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -28,13 +30,18 @@ public class UserEntity {
     private String fullName;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserRoles role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserRoles> roles;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user")
+    private List<BorrowsHistoryEntity> borrowsHistory;
 
     @Override
     public boolean equals(Object o) {

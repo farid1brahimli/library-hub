@@ -1,23 +1,28 @@
 package az.company.userservice.mapper;
 
 import az.company.userservice.dao.entity.UserEntity;
+import az.company.userservice.model.enums.UserRoles;
 import az.company.userservice.model.request.CreateUserRequest;
 import az.company.userservice.model.response.UserResponse;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import liquibase.license.User;
 import lombok.NoArgsConstructor;
 
-import java.awt.print.Book;
+import java.util.Set;
+
+import static az.company.userservice.model.enums.UserRoles.USER;
+import static az.company.userservice.model.enums.UserStatus.ACTIVE;
 
 public class UserMapper {
-
     public static UserEntity mapToUserEntity(CreateUserRequest createUserRequest) {
         return UserEntity.builder()
                 .username(createUserRequest.getUsername())
-                .email(createUserRequest.getEmail())
                 .password(createUserRequest.getPassword())
+                .email(createUserRequest.getEmail())
                 .fullName(createUserRequest.getFullName())
+                .roles(Set.of(USER))
+                .status(ACTIVE)
+                .createdAt(java.time.LocalDateTime.now())
+                .updatedAt(java.time.LocalDateTime.now())
                 .build();
     }
 
@@ -27,7 +32,6 @@ public class UserMapper {
                 .username(userEntity.getUsername())
                 .email(userEntity.getEmail())
                 .fullName(userEntity.getFullName())
-                .role(userEntity.getRole())
                 .createdAt(userEntity.getCreatedAt())
                 .updatedAt(userEntity.getUpdatedAt())
                 .build();

@@ -1,7 +1,6 @@
-package az.company.bookservice.dao.entity;
+package az.company.userservice.dao.entity;
 
-import az.company.bookservice.model.enums.BookStatus;
-import az.company.bookservice.model.enums.BorrowStatus;
+import az.company.userservice.model.enums.BorrowStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,35 +9,35 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "borrows")
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "borrow_history")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class BookBorrowEntity {
+public class BorrowsHistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private Long userId;
+    private Long bookId;
+    @Column(nullable = false)
+    private String bookTitle;
     @Column(nullable = false)
     private LocalDateTime borrowedAt;
-    @Column(nullable = false)
-    private LocalDate dueTime;
     private LocalDateTime returnedAt;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BorrowStatus status;
 
-    @ManyToOne()
-    @JoinColumn(name = "book_id")
-    private BookEntity book;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        BookBorrowEntity that = (BookBorrowEntity) o;
+        BorrowsHistoryEntity that = (BorrowsHistoryEntity) o;
         return Objects.equals(id, that.id);
     }
 

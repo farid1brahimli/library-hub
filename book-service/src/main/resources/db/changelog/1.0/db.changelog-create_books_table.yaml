@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 07012026
+      id: 20260709
       author: farid1brahimli
 
       changes:
@@ -13,6 +13,7 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_books
                     nullable: false
 
               - column:
@@ -23,7 +24,7 @@ databaseChangeLog:
 
               - column:
                   name: author
-                  type: VARCHAR(100)
+                  type: VARCHAR(255)
                   constraints:
                     nullable: false
 
@@ -31,8 +32,8 @@ databaseChangeLog:
                   name: isbn
                   type: VARCHAR(255)
                   constraints:
-                    unique: true
                     nullable: false
+                    unique: true
 
               - column:
                   name: description

@@ -15,4 +15,6 @@ public class ApplicationConstants {
     public static final String Book_TotalCopies_Is_Required = "Book Total Copies is required";
     public static final String Book_CategoryId_Is_Required = "Book categoryId is required";
     public static final String Book_Status_Is_Required = "Book status is required";
+    public static final String UserId_Is_Required = "Book borrow user id is required";
+    public static final String BookId_Is_Required = "Book borrow book id is required";
 }

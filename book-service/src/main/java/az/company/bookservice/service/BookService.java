@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static az.company.bookservice.exception.enums.ErrorStatus.BOOK_NOT_FOUND;
 import static az.company.bookservice.exception.enums.ErrorStatus.CATEGORY_NOT_FOUND;
 import static java.lang.String.format;
 
@@ -76,8 +77,8 @@ public class BookService {
     public BookResponse getBookById(Long id) {
         var entity = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        CATEGORY_NOT_FOUND.name(),
-                        format(CATEGORY_NOT_FOUND.getMessage(), id)));
+                        BOOK_NOT_FOUND.name(),
+                        format(BOOK_NOT_FOUND.getMessage(), id)));
 
         return BookMapper.mapToBookResponse(entity);
     }
