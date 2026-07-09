@@ -1,10 +1,11 @@
 package az.company.bookservice.controller;
 
 import az.company.bookservice.model.request.BookBorrowRequest;
-import az.company.bookservice.service.BookService;
+import az.company.bookservice.model.response.BorrowResponse;
 import az.company.bookservice.service.BorrowService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -21,9 +22,19 @@ public class BorrowController {
         borrowService.borrow(bookBorrowRequest);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/return")
     public void returnBook(@PathVariable Long id) {
         borrowService.returnBook(id);
+    }
+
+    @GetMapping
+    public Page<BorrowResponse> getAllBorrows(Pageable pageable) {
+        return borrowService.getAllBorrows(pageable);
+    }
+
+    @PutMapping("/overdue")
+    public void checkOverdue() {
+        borrowService.checkBorrowStatus();
     }
 
 }

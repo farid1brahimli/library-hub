@@ -1,28 +1,30 @@
 package az.company.bookservice.service;
 
 import az.company.bookservice.client.UserClient;
-import az.company.bookservice.config.RabbitMQConfig;
 import az.company.bookservice.dao.entity.BookBorrowEntity;
 import az.company.bookservice.dao.repository.BookRepository;
 import az.company.bookservice.dao.repository.BorrowRepository;
 import az.company.bookservice.exception.ConflictException;
 import az.company.bookservice.exception.NotFoundException;
+import az.company.bookservice.mapper.BorrowMapper;
 import az.company.bookservice.model.dto.BorrowEvent;
-import az.company.bookservice.model.enums.BookStatus;
-import az.company.bookservice.model.enums.BorrowStatus;
 import az.company.bookservice.model.request.BookBorrowRequest;
 
+import az.company.bookservice.model.response.BorrowResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static az.company.bookservice.config.RabbitMQConfig.*;
 import static az.company.bookservice.exception.enums.ErrorStatus.*;
-import static az.company.bookservice.model.enums.BorrowStatus.BORROWED;
-import static az.company.bookservice.model.enums.BorrowStatus.RETURNED;
+import static az.company.bookservice.model.enums.BorrowStatus.*;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 
@@ -34,6 +36,7 @@ public class BorrowService {
     private final BookRepository bookRepository;
     private final RabbitTemplate rabbitTemplate;
 
+    // region borrow method
     @Transactional
     public void borrow(BookBorrowRequest bookBorrowRequest) {
         var userResponse = userClient.getUser(bookBorrowRequest.getUserId());
@@ -76,7 +79,9 @@ public class BorrowService {
                 BORROW_ROUTING_KEY,
                 event);
     }
+    //endregion
 
+    //region return method
     public void returnBook(Long id) {
 
         var borrowEntity = borrowRepository.findById(id).orElseThrow(
@@ -114,5 +119,39 @@ public class BorrowService {
                 BORROW_EXCHANGE,
                 BORROW_ROUTING_KEY,
                 event);
+    }
+
+    //endregion
+
+
+    public Page<BorrowResponse> getAllBorrows(Pageable pageable) {
+        return borrowRepository.findAll(pageable).map(BorrowMapper::mapToBorrowResponse);
+
+    }
+
+    public void checkBorrowStatus() {
+        var list = borrowRepository.findAll();
+        for (var borrowEntity : list) {
+            if ((borrowEntity.getStatus() == BORROWED) && (LocalDate.now().isAfter(borrowEntity.getDueTime()))) {
+                borrowEntity.setStatus(OVERDUE);
+
+                borrowRepository.save(borrowEntity);
+
+                BorrowEvent event = BorrowEvent.builder()
+                        .id(UUID.randomUUID().toString())
+                        .userId(borrowEntity.getUserId())
+                        .bookId(borrowEntity.getBook().getId())
+                        .bookTitle(borrowEntity.getBook().getTitle())
+                        .borrowedAt(borrowEntity.getBorrowedAt())
+                        .returnedAt(borrowEntity.getReturnedAt())
+                        .status(borrowEntity.getStatus())
+                        .build();
+
+                rabbitTemplate.convertAndSend(
+                        BORROW_EXCHANGE,
+                        BORROW_ROUTING_KEY,
+                        event);
+            }
+        }
     }
 }
