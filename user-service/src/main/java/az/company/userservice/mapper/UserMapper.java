@@ -1,11 +1,8 @@
 package az.company.userservice.mapper;
 
 import az.company.userservice.dao.entity.UserEntity;
-import az.company.userservice.model.enums.UserRoles;
 import az.company.userservice.model.request.CreateUserRequest;
 import az.company.userservice.model.response.UserResponse;
-import liquibase.license.User;
-import lombok.NoArgsConstructor;
 
 import java.util.Set;
 

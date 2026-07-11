@@ -29,3 +29,6 @@ spring:
     host: localhost
 server:
   port: 8081
+jwt:
+  secret: salammensecretsalammensecretsalammensecretsalammen
+  access-token-expiration: 24

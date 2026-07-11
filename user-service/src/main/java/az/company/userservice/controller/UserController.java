@@ -15,12 +15,6 @@ import static org.springframework.http.HttpStatus.*;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping
-    @ResponseStatus(CREATED)
-    public UserResponse createUser(@Valid   @RequestBody CreateUserRequest createUserRequest) {
-        return userService.createUser(createUserRequest);
-    }
-
     @GetMapping("{id}")
     @ResponseStatus(OK)
     public UserResponse getUser(@PathVariable Long id) {

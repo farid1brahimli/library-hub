@@ -24,23 +24,6 @@ import static java.lang.String.format;
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserResponse createUser(CreateUserRequest createUserRequest) {
-        if(userRepository.findByUsername((createUserRequest.getUsername())).isPresent()) {
-            throw new UserPresentException(
-                    USER_ALREADY_EXISTS.name(),
-                    format(USER_ALREADY_EXISTS.getMessage(), createUserRequest.getUsername()));
-        }
-
-        var entity = mapToUserEntity(createUserRequest);
-
-        if(userRepository.count() == 0) {
-            entity.setRoles(Set.of(ADMIN, USER));
-        }
-
-        userRepository.save(entity);
-        return mapToUserResponse(entity);
-    }
-
     public UserResponse getUserById(Long userId) {
         var entity = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException(

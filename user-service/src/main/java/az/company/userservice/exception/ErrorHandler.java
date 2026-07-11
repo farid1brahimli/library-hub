@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -17,8 +18,10 @@ public class ErrorHandler {
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(Exception ex) {
         return ErrorResponse.builder()
-                .code("INTERNAL_SERVER_ERROR")
-                .message(ex.getMessage())
+                .status(INTERNAL_SERVER_ERROR.value())
+                .message("INTERNAL_SERVER_ERROR")
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -26,8 +29,10 @@ public class ErrorHandler {
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
         return ErrorResponse.builder()
-                .code("VALIDATION_ERROR")
-                .message(Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage())
+                .status(BAD_REQUEST.value())
+                .message("VALIDATION_ERROR")
+                .error(Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -35,8 +40,10 @@ public class ErrorHandler {
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleUserPresentException(UserPresentException ex) {
         return ErrorResponse.builder()
-                .code("USER_ALREADY_EXISTS")
-                .message(ex.getMessage())
+                .status(BAD_REQUEST.value())
+                .message("USER_ALREADY_EXISTS")
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -44,8 +51,10 @@ public class ErrorHandler {
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleUserNotFoundException(UserNotFoundException ex) {
         return ErrorResponse.builder()
-                .code("USER_NOT_FOUND")
-                .message(ex.getMessage())
+                .status(BAD_REQUEST.value())
+                .message("USER_NOT_FOUND")
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
 
     }

@@ -74,6 +74,7 @@ public class BookService {
                 .map(BookMapper::mapToBookResponse);
     }
 
+    @Cacheable(key = "#id", value = "books")
     public BookResponse getBookById(Long id) {
         var entity = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
