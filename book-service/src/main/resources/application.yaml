@@ -26,5 +26,8 @@ spring:
       password: guest
     port: 5672
     host: localhost
+jwt:
+  secret: salammensecretsalammensecretsalammensecretsalammen
+  access-token-expiration: 24
 server:
   port: 8082

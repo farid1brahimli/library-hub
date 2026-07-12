@@ -17,10 +17,10 @@ public class ObjectMapperConfig {
                 .findAndAddModules()
                 .build();
 
-        mapper.activateDefaultTyping(
-                mapper.getPolymorphicTypeValidator(),
-                ObjectMapper.DefaultTyping.NON_FINAL
-        );
+//        mapper.activateDefaultTyping(
+//                mapper.getPolymorphicTypeValidator(),
+//                ObjectMapper.DefaultTyping.NON_FINAL
+//        );
 
         return mapper;
     }

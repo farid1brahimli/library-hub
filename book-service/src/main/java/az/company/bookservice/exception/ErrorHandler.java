@@ -7,42 +7,54 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
     public ErrorResponse handler(NotFoundException ex){
         return ErrorResponse.builder()
-                .code(ex.getCode())
-                .message(ex.getMessage())
+                .status(NOT_FOUND.value())
+                .message(ex.getCode())
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
     public ErrorResponse handler(Exception ex){
         return ErrorResponse.builder()
-                .code("INTERNAL_SERVER_ERROR")
-                .message(ex.getMessage())
+                .status(INTERNAL_SERVER_ERROR.value())
+                .message("Internal Server Error")
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handler(MethodArgumentNotValidException ex){
         return ErrorResponse.builder()
-                .code("VALIDATION_ERROR")
-                .message(Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage())
+                .status(BAD_REQUEST.value())
+                .message("VALIDATION_ERROR")
+                .error(Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
     @ExceptionHandler(ConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(CONFLICT)
     public ErrorResponse handler(ConflictException ex){
         return ErrorResponse.builder()
 
-                .code("CONFLICT")
-                .message(ex.getMessage())
+                .status(CONFLICT.value())
+                .message(ex.getCode())
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }

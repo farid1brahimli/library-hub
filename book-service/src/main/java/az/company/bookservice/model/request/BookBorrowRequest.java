@@ -11,8 +11,6 @@ import static az.company.bookservice.model.constants.ApplicationConstants.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookBorrowRequest {
-    @NotNull(message = UserId_Is_Required)
-    private Long userId;
     @NotNull(message = BookId_Is_Required)
     private Long bookId;
 }

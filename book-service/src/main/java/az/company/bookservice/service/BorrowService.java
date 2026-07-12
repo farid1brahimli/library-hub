@@ -1,6 +1,5 @@
 package az.company.bookservice.service;
 
-import az.company.bookservice.client.UserClient;
 import az.company.bookservice.dao.entity.BookBorrowEntity;
 import az.company.bookservice.dao.repository.BookRepository;
 import az.company.bookservice.dao.repository.BorrowRepository;
@@ -16,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,14 +33,12 @@ import static java.time.LocalDateTime.now;
 @RequiredArgsConstructor
 public class BorrowService {
     private final BorrowRepository borrowRepository;
-    private final UserClient userClient;
     private final BookRepository bookRepository;
     private final RabbitTemplate rabbitTemplate;
 
     // region borrow method
     @Transactional
-    public void borrow(BookBorrowRequest bookBorrowRequest) {
-        var userResponse = userClient.getUser(bookBorrowRequest.getUserId());
+    public void borrow(BookBorrowRequest bookBorrowRequest, Long id) {
         var bookEntity = bookRepository.findById(bookBorrowRequest.getBookId()).orElseThrow(
                 ()->new NotFoundException(
                         BOOK_NOT_FOUND.name(),
@@ -53,9 +52,12 @@ public class BorrowService {
             );
         }
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        id = (Long) authentication.getPrincipal();
+
         bookEntity.setAvailableCopies(bookEntity.getAvailableCopies() - 1);
         var borrowEntity = BookBorrowEntity.builder()
-                .userId(userResponse.getId())
+                .userId(id)
                 .book(bookEntity)
                 .borrowedAt(now())
                 .dueTime(now().plusDays(14).toLocalDate())
@@ -82,7 +84,7 @@ public class BorrowService {
     //endregion
 
     //region return method
-    public void returnBook(Long id) {
+    public void returnBook(Long id, Long bookId) {
 
         var borrowEntity = borrowRepository.findById(id).orElseThrow(
                 ()-> new NotFoundException(
@@ -98,6 +100,9 @@ public class BorrowService {
                 )
         );
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        bookId = (Long) authentication.getPrincipal();
+
         bookEntity.setAvailableCopies(bookEntity.getAvailableCopies() + 1);
         bookRepository.save(bookEntity);
         borrowEntity.setStatus(RETURNED);
@@ -108,7 +113,7 @@ public class BorrowService {
         BorrowEvent event = BorrowEvent.builder()
                 .id(UUID.randomUUID().toString())
                 .userId(borrowEntity.getUserId())
-                .bookId(bookEntity.getId())
+                .bookId(bookId)
                 .bookTitle(bookEntity.getTitle())
                 .borrowedAt(borrowEntity.getBorrowedAt())
                 .returnedAt(borrowEntity.getReturnedAt())

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,18 +23,21 @@ public class BookController {
 
     private final BookService bookService;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     @ResponseStatus(CREATED)
     public BookResponse createBook(@Valid @RequestBody CreateBookRequest createBookRequest) {
         return bookService.createBook(createBookRequest);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/update")
     @ResponseStatus(OK)
     public BookResponse updateBook(@Valid @RequestBody UpdateBookRequest updateBookRequest) {
         return bookService.updateBook(updateBookRequest);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(NO_CONTENT)
     public void deleteBook(@PathVariable Long id) {
