@@ -39,6 +39,7 @@ public class UserEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime LastLoginAt;
 
     @OneToMany(mappedBy = "user")
     private List<BorrowsHistoryEntity> borrowsHistory;

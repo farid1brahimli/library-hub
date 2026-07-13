@@ -36,10 +36,5 @@ public class BorrowController {
         return borrowService.getAllBorrows(pageable);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping("/overdue")
-    public void checkOverdue() {
-        borrowService.checkBorrowStatus();
-    }
 
 }

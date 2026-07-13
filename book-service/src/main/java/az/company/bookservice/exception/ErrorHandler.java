@@ -29,7 +29,7 @@ public class ErrorHandler {
     public ErrorResponse handler(Exception ex){
         return ErrorResponse.builder()
                 .status(INTERNAL_SERVER_ERROR.value())
-                .message("Internal Server Error")
+                .message("Internal  Error")
                 .error(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -57,4 +57,39 @@ public class ErrorHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+
+    @ExceptionHandler(BookAlreadyBorrowedException.class)
+    @ResponseStatus(CONFLICT)
+    public ErrorResponse handler(BookAlreadyBorrowedException ex){
+        return ErrorResponse.builder()
+
+                .status(CONFLICT.value())
+                .message(ex.getCode())
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(BookAlreadyCreatedException.class)
+    @ResponseStatus(CONFLICT)
+    public ErrorResponse handler(BookAlreadyCreatedException ex){
+        return ErrorResponse.builder()
+                .status(CONFLICT.value())
+                .message(ex.getCode())
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(CategoryAlreadyCreatedException.class)
+    @ResponseStatus(CONFLICT)
+    public ErrorResponse handler(CategoryAlreadyCreatedException ex){
+        return ErrorResponse.builder()
+                .status(CONFLICT.value())
+                .message(ex.getCode())
+                .error(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
 }

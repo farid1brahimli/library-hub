@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<BookEntity, Long> {
     @Query
@@ -29,5 +30,7 @@ AND (:title IS NULL OR b.title = :title)
 """
     )
     List<BookEntity> findAllBooksWithAuthorAndTitle(String author, String title);
+
+    Optional<BookEntity> findByTitleAndAuthor(String bookTitle, String author);
 
 }

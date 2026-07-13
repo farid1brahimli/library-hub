@@ -1,6 +1,8 @@
 package az.company.bookservice.service;
 
 import az.company.bookservice.dao.repository.CategoryRepository;
+import az.company.bookservice.exception.BookAlreadyCreatedException;
+import az.company.bookservice.exception.CategoryAlreadyCreatedException;
 import az.company.bookservice.exception.NotFoundException;
 import az.company.bookservice.exception.enums.ErrorStatus;
 import az.company.bookservice.mapper.CategoryMapper;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static az.company.bookservice.exception.enums.ErrorStatus.CATEGORY_NOT_FOUND;
+import static az.company.bookservice.exception.enums.ErrorStatus.*;
 import static az.company.bookservice.mapper.CategoryMapper.*;
 import static java.lang.String.format;
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -26,6 +28,14 @@ public class CategoryService {
     private CategoryResponse categoryResponse;
 
     public CategoryResponse createCategory(CreateCategoryRequest  createCategoryRequest) {
+
+        if(categoryRepository.findByName(createCategoryRequest.getName()).isPresent()) {
+            throw new CategoryAlreadyCreatedException(
+                    CATEGORY_ALREADY_CREATED.name(),
+                    format(CATEGORY_ALREADY_CREATED.getMessage(),  createCategoryRequest.getName()));
+
+        }
+
         var entity = mapToCategoryEntity(createCategoryRequest);
         categoryRepository.save(entity);
         return mapToCategoryResponse(entity);

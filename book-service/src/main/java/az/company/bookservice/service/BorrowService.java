@@ -3,10 +3,12 @@ package az.company.bookservice.service;
 import az.company.bookservice.dao.entity.BookBorrowEntity;
 import az.company.bookservice.dao.repository.BookRepository;
 import az.company.bookservice.dao.repository.BorrowRepository;
+import az.company.bookservice.exception.BookAlreadyBorrowedException;
 import az.company.bookservice.exception.ConflictException;
 import az.company.bookservice.exception.NotFoundException;
 import az.company.bookservice.mapper.BorrowMapper;
 import az.company.bookservice.model.dto.BorrowEvent;
+import az.company.bookservice.model.enums.BorrowStatus;
 import az.company.bookservice.model.request.BookBorrowRequest;
 
 import az.company.bookservice.model.response.BorrowResponse;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,25 +28,34 @@ import java.util.UUID;
 
 import static az.company.bookservice.config.RabbitMQConfig.*;
 import static az.company.bookservice.exception.enums.ErrorStatus.*;
+import static az.company.bookservice.mapper.BorrowMapper.mapToBorrowResponse;
 import static az.company.bookservice.model.enums.BorrowStatus.*;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BorrowService {
     private final BorrowRepository borrowRepository;
     private final BookRepository bookRepository;
     private final RabbitTemplate rabbitTemplate;
 
     // region borrow method
-    @Transactional
-    public void borrow(BookBorrowRequest bookBorrowRequest, Long id) {
+    public BorrowResponse borrow(BookBorrowRequest bookBorrowRequest, Long id) {
         var bookEntity = bookRepository.findById(bookBorrowRequest.getBookId()).orElseThrow(
                 ()->new NotFoundException(
                         BOOK_NOT_FOUND.name(),
                         format(BOOK_NOT_FOUND.getMessage(), bookBorrowRequest.getBookId())
                 ));
+
+        if(borrowRepository.findByBookIdAndUserId(bookBorrowRequest.getBookId(), id).isPresent() &&
+        borrowRepository.findByBookIdAndUserId(bookBorrowRequest.getBookId(), id).get().getStatus() == BorrowStatus.BORROWED) {
+            throw new BookAlreadyBorrowedException(
+                    BOOK_ALREADY_BORROWED.name(),
+                    format(BOOK_ALREADY_BORROWED.getMessage(), bookEntity.getTitle())
+            );
+        }
 
         if(bookEntity.getAvailableCopies() == 0) {
             throw new ConflictException(
@@ -80,6 +92,8 @@ public class BorrowService {
                 BORROW_EXCHANGE,
                 BORROW_ROUTING_KEY,
                 event);
+
+        return mapToBorrowResponse(borrowEntity);
     }
     //endregion
 
@@ -134,13 +148,16 @@ public class BorrowService {
 
     }
 
+    @Scheduled(cron = "10 * * * * *", zone = "Asia/Baku")
     public void checkBorrowStatus() {
-        var list = borrowRepository.findAll();
+        var list = borrowRepository.findAll().stream()
+                .filter(
+                        borrow ->  {
+                            return borrow.getDueTime().isBefore(LocalDate.now()) && borrow.getReturnedAt() == null;
+                        }
+                ).toList();
         for (var borrowEntity : list) {
-            if ((borrowEntity.getStatus() == BORROWED) && (LocalDate.now().isAfter(borrowEntity.getDueTime()))) {
                 borrowEntity.setStatus(OVERDUE);
-
-                borrowRepository.save(borrowEntity);
 
                 BorrowEvent event = BorrowEvent.builder()
                         .id(UUID.randomUUID().toString())
@@ -159,4 +176,3 @@ public class BorrowService {
             }
         }
     }
-}

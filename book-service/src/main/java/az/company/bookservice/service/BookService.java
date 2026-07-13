@@ -2,6 +2,7 @@ package az.company.bookservice.service;
 
 import az.company.bookservice.dao.repository.BookRepository;
 import az.company.bookservice.dao.repository.CategoryRepository;
+import az.company.bookservice.exception.BookAlreadyCreatedException;
 import az.company.bookservice.exception.NotFoundException;
 import az.company.bookservice.mapper.BookMapper;
 import az.company.bookservice.model.enums.BookStatus;
@@ -17,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static az.company.bookservice.exception.enums.ErrorStatus.BOOK_NOT_FOUND;
-import static az.company.bookservice.exception.enums.ErrorStatus.CATEGORY_NOT_FOUND;
+import static az.company.bookservice.exception.enums.ErrorStatus.*;
 import static java.lang.String.format;
 
 @Service
@@ -29,10 +29,17 @@ public class BookService {
 
     @CacheEvict(value = "books", allEntries = true)
     public BookResponse createBook(CreateBookRequest createBookRequest) {
+        if (bookRepository.findByTitleAndAuthor(createBookRequest.getTitle(), createBookRequest.getAuthor()).isPresent()) {
+            throw new BookAlreadyCreatedException(
+                    BOOK_ALREADY_CREATED.name(),
+                    format(BOOK_ALREADY_CREATED.getMessage(),  createBookRequest.getTitle(), createBookRequest.getAuthor())
+            );
+        }
+
        var category =  categoryRepository.findById(createBookRequest.getCategoryId())
                 .orElseThrow(() -> new NotFoundException(
                 CATEGORY_NOT_FOUND.name(),
-                        format(CATEGORY_NOT_FOUND.getMessage(), createBookRequest.getCategoryId()))    );
+                        format(CATEGORY_NOT_FOUND.getMessage(), createBookRequest.getCategoryId())));
 
 
         var entity = BookMapper.mapToBookEntity(createBookRequest);

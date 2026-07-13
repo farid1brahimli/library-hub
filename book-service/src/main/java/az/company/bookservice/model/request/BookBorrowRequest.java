@@ -13,4 +13,5 @@ import static az.company.bookservice.model.constants.ApplicationConstants.*;
 public class BookBorrowRequest {
     @NotNull(message = BookId_Is_Required)
     private Long bookId;
+
 }
