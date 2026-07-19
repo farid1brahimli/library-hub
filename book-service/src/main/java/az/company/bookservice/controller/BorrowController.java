@@ -2,7 +2,8 @@ package az.company.bookservice.controller;
 
 import az.company.bookservice.model.request.BookBorrowRequest;
 import az.company.bookservice.model.response.BorrowResponse;
-import az.company.bookservice.service.BorrowService;
+import az.company.bookservice.service.abstraction.BorrowService;
+import az.company.bookservice.service.concrete.BorrowServiceHandler;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,13 +27,19 @@ public class BorrowController {
     }
 
     @PutMapping("/{id}/return")
-    public void returnBook(@PathVariable Long id, @AuthenticationPrincipal Long bookId) {
-        borrowService.returnBook(id, bookId);
+    public void returnBook(@PathVariable Long bookId, @AuthenticationPrincipal Long userId) {
+        borrowService.returnBook(bookId, userId);
+    }
+
+    @GetMapping("/my")
+    public Page<BorrowResponse> getMyBorrows(@AuthenticationPrincipal Long userId, Pageable pageable) {
+        return borrowService.getBorrowsByUserId(userId, pageable);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public Page<BorrowResponse> getAllBorrows(Pageable pageable) {
+
         return borrowService.getAllBorrows(pageable);
     }
 

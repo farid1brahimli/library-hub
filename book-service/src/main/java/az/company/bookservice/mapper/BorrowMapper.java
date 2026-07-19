@@ -2,17 +2,13 @@ package az.company.bookservice.mapper;
 
 import az.company.bookservice.dao.entity.BookBorrowEntity;
 import az.company.bookservice.model.response.BorrowResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-public class BorrowMapper {
-    public static BorrowResponse mapToBorrowResponse(BookBorrowEntity entity) {
-        return BorrowResponse.builder()
-                .id(entity.getId())
-                .userId(entity.getUserId())
-                .bookId(entity.getBook().getId())
-                .borrowedAt(entity.getBorrowedAt())
-                .returnedAt(entity.getReturnedAt())
-                .dueTime(entity.getDueTime())
-                .status(entity.getStatus())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface BorrowMapper {
+    @Mapping(target = "bookId", source = "book.id")
+    BorrowResponse mapToBorrowResponse(BookBorrowEntity entity);
+
+
 }

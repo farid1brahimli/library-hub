@@ -39,10 +39,10 @@ public class UserEntity {
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private LocalDateTime LastLoginAt;
+    private LocalDateTime lastLoginAt;
 
     @OneToMany(mappedBy = "user")
-    private List<BorrowsHistoryEntity> borrowsHistory;
+    private List<BorrowHistoryEntity> borrowsHistory;
 
     @Override
     public boolean equals(Object o) {

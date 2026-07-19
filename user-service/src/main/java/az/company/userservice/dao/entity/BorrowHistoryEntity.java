@@ -4,7 +4,6 @@ import az.company.userservice.model.enums.BorrowStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -15,7 +14,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BorrowsHistoryEntity {
+public class BorrowHistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,7 +36,7 @@ public class BorrowsHistoryEntity {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        BorrowsHistoryEntity that = (BorrowsHistoryEntity) o;
+        BorrowHistoryEntity that = (BorrowHistoryEntity) o;
         return Objects.equals(id, that.id);
     }
 

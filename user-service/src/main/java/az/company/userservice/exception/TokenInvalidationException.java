@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserNotFoundException extends RuntimeException {
+public class TokenInvalidationException extends RuntimeException {
     private final String code;
-    public UserNotFoundException(String code, String message) {
+    public TokenInvalidationException(String code, String message) {
         super(message);
         this.code = code;
     }

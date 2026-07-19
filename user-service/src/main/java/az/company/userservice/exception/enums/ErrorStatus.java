@@ -9,6 +9,8 @@ import org.aspectj.bridge.IMessage;
 @AllArgsConstructor
 public enum ErrorStatus {
     USER_ALREADY_EXISTS("User already exists with this username: %s"),
-    USER_NOT_FOUND("User not found with this id: %s");
+    USER_NOT_FOUND("User not found with this username: %s"),
+    TOKEN_INVALID("Token invalid: "),
+    REFRESH_TOKEN_IS_NOT_ACTIVE("Refresh token is not active: ");
     private final String message;
 }

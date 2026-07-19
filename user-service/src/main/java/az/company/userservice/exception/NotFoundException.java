@@ -5,10 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserPresentException extends RuntimeException {
+public class NotFoundException extends RuntimeException {
     private final String code;
-    public UserPresentException(String code, String message) {
-
+    public NotFoundException(String code, String message) {
         super(message);
         this.code = code;
     }

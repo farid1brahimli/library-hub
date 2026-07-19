@@ -1,6 +1,5 @@
 package az.company.bookservice.model.request;
 
-import static az.company.bookservice.model.constants.ApplicationConstants.*;
 import az.company.bookservice.model.enums.BookStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,14 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.Year;
+
+import static az.company.bookservice.exception.constants.ApplicationConstants.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateBookRequest {
-    @NotNull(message = "Book id is not be empty")
+    @NotNull(message = BookId_Is_Required)
     private Long id;
     @NotBlank(message = Book_Title_Is_Required)
     private String title;

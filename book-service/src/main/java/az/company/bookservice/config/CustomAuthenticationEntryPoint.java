@@ -23,9 +23,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
+                         AuthenticationException authException)
+            throws IOException {
 
         var responseBody = ErrorResponse.builder()
                 .status(UNAUTHORIZED.value())
@@ -33,6 +32,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 .message("UNAUTHORIZED")
                 .timestamp(LocalDateTime.now())
                 .build();
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
 
         objectMapper.writeValue(response.getWriter(), responseBody);
     }

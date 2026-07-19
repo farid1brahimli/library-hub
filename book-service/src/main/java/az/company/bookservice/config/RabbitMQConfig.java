@@ -16,10 +16,12 @@ public class RabbitMQConfig {
     public Queue borrowQueue() {
         return new Queue(BORROW_QUEUE);
     }
+
     @Bean
     public TopicExchange borrowExchange() {
         return new TopicExchange(BORROW_EXCHANGE);
     }
+
     @Bean
     public Binding borrowBinding() {
         return BindingBuilder

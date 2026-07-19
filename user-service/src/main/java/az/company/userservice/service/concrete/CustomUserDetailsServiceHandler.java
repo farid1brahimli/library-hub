@@ -1,4 +1,4 @@
-package az.company.userservice.service;
+package az.company.userservice.service.concrete;
 
 import az.company.userservice.dao.entity.UserEntity;
 import az.company.userservice.dao.repository.UserRepository;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsServiceHandler implements UserDetailsService {
 
     private final UserRepository userRepository;
 

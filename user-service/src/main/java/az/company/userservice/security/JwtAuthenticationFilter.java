@@ -1,8 +1,8 @@
 package az.company.userservice.security;
 
-import az.company.userservice.service.JwtService;
-import az.company.userservice.service.TokenStorageService;
-import az.company.userservice.service.CustomUserDetailsService;
+import az.company.userservice.security.service.JwtService;
+import az.company.userservice.security.service.TokenStorageService;
+import az.company.userservice.service.concrete.CustomUserDetailsServiceHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final TokenStorageService tokenStorageService;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsServiceHandler customUserDetailsService;
     private final ObjectMapper objectMapper;
 
 

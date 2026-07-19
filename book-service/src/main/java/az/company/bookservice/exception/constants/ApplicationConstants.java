@@ -1,4 +1,4 @@
-package az.company.bookservice.model.constants;
+package az.company.bookservice.exception.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

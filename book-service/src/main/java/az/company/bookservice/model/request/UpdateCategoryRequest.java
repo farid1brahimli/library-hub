@@ -1,12 +1,11 @@
 package az.company.bookservice.model.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static az.company.bookservice.model.constants.ApplicationConstants.*;
+import static az.company.bookservice.exception.constants.ApplicationConstants.*;
 
 @Data
 @NoArgsConstructor

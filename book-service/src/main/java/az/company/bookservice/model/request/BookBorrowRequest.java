@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static az.company.bookservice.model.constants.ApplicationConstants.*;
+import static az.company.bookservice.exception.constants.ApplicationConstants.BookId_Is_Required;
 
 @Data
 @NoArgsConstructor

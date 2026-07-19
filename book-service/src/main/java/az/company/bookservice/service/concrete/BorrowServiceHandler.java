@@ -1,4 +1,4 @@
-package az.company.bookservice.service;
+package az.company.bookservice.service.concrete;
 
 import az.company.bookservice.dao.entity.BookBorrowEntity;
 import az.company.bookservice.dao.repository.BookRepository;
@@ -12,6 +12,7 @@ import az.company.bookservice.model.enums.BorrowStatus;
 import az.company.bookservice.model.request.BookBorrowRequest;
 
 import az.company.bookservice.model.response.BorrowResponse;
+import az.company.bookservice.service.abstraction.BorrowService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -23,12 +24,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import static az.company.bookservice.config.RabbitMQConfig.*;
 import static az.company.bookservice.exception.enums.ErrorStatus.*;
-import static az.company.bookservice.mapper.BorrowMapper.mapToBorrowResponse;
 import static az.company.bookservice.model.enums.BorrowStatus.*;
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
@@ -36,12 +35,14 @@ import static java.time.LocalDateTime.now;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class BorrowService {
+public class BorrowServiceHandler implements BorrowService {
     private final BorrowRepository borrowRepository;
     private final BookRepository bookRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final BorrowMapper borrowMapper;
 
     // region borrow method
+    @Override
     public BorrowResponse borrow(BookBorrowRequest bookBorrowRequest, Long id) {
         var bookEntity = bookRepository.findById(bookBorrowRequest.getBookId()).orElseThrow(
                 ()->new NotFoundException(
@@ -93,17 +94,18 @@ public class BorrowService {
                 BORROW_ROUTING_KEY,
                 event);
 
-        return mapToBorrowResponse(borrowEntity);
+        return borrowMapper.mapToBorrowResponse(borrowEntity);
     }
     //endregion
 
     //region return method
-    public void returnBook(Long id, Long bookId) {
+    @Override
+    public void returnBook(Long borrowId, Long userId) {
 
-        var borrowEntity = borrowRepository.findById(id).orElseThrow(
+        var borrowEntity = borrowRepository.findById(borrowId).orElseThrow(
                 ()-> new NotFoundException(
-                        BOOK_NOT_FOUND.name(),
-                        format(BOOK_NOT_FOUND.getMessage(), id)
+                        BORROW_NOT_FOUND.name(),
+                        format(BORROW_NOT_FOUND.getMessage(), borrowId )
                 )
         );
 
@@ -114,9 +116,6 @@ public class BorrowService {
                 )
         );
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        bookId = (Long) authentication.getPrincipal();
-
         bookEntity.setAvailableCopies(bookEntity.getAvailableCopies() + 1);
         bookRepository.save(bookEntity);
         borrowEntity.setStatus(RETURNED);
@@ -126,8 +125,8 @@ public class BorrowService {
 
         BorrowEvent event = BorrowEvent.builder()
                 .id(UUID.randomUUID().toString())
-                .userId(borrowEntity.getUserId())
-                .bookId(bookId)
+                .userId(userId)
+                .bookId(borrowEntity.getBook().getId())
                 .bookTitle(bookEntity.getTitle())
                 .borrowedAt(borrowEntity.getBorrowedAt())
                 .returnedAt(borrowEntity.getReturnedAt())
@@ -143,12 +142,14 @@ public class BorrowService {
     //endregion
 
 
+    @Override
     public Page<BorrowResponse> getAllBorrows(Pageable pageable) {
-        return borrowRepository.findAll(pageable).map(BorrowMapper::mapToBorrowResponse);
+        return borrowRepository.findAll(pageable).map(borrowMapper::mapToBorrowResponse);
 
     }
 
-    @Scheduled(cron = "10 * * * * *", zone = "Asia/Baku")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Baku")
+    @Override
     public void checkBorrowStatus() {
         var list = borrowRepository.findAll().stream()
                 .filter(
@@ -174,5 +175,13 @@ public class BorrowService {
                         BORROW_ROUTING_KEY,
                         event);
             }
+
         }
+
+    @Override
+    public Page<BorrowResponse> getBorrowsByUserId(Long userId, Pageable pageable) {
+        return borrowRepository.findByUserId(userId, pageable).map(
+                borrowMapper::mapToBorrowResponse
+        );
+    }
     }

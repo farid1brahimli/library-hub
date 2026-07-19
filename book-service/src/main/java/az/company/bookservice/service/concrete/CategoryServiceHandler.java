@@ -1,17 +1,14 @@
-package az.company.bookservice.service;
+package az.company.bookservice.service.concrete;
 
 import az.company.bookservice.dao.repository.CategoryRepository;
-import az.company.bookservice.exception.BookAlreadyCreatedException;
 import az.company.bookservice.exception.CategoryAlreadyCreatedException;
 import az.company.bookservice.exception.NotFoundException;
-import az.company.bookservice.exception.enums.ErrorStatus;
 import az.company.bookservice.mapper.CategoryMapper;
 import az.company.bookservice.model.request.CreateCategoryRequest;
 import az.company.bookservice.model.request.UpdateCategoryRequest;
 import az.company.bookservice.model.response.CategoryResponse;
+import az.company.bookservice.service.abstraction.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,14 +16,14 @@ import java.util.List;
 import static az.company.bookservice.exception.enums.ErrorStatus.*;
 import static az.company.bookservice.mapper.CategoryMapper.*;
 import static java.lang.String.format;
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService {
+public class CategoryServiceHandler implements CategoryService {
     private final CategoryRepository categoryRepository;
     private CategoryResponse categoryResponse;
 
+    @Override
     public CategoryResponse createCategory(CreateCategoryRequest  createCategoryRequest) {
 
         if(categoryRepository.findByName(createCategoryRequest.getName()).isPresent()) {
@@ -41,6 +38,7 @@ public class CategoryService {
         return mapToCategoryResponse(entity);
     }
 
+    @Override
     public CategoryResponse updateCategory(UpdateCategoryRequest updateCategoryRequest) {
         var entity = categoryRepository.findById(updateCategoryRequest.getCategoryId())
                 .orElseThrow(
@@ -52,12 +50,14 @@ public class CategoryService {
         return mapToCategoryResponse(entity);
     }
 
+    @Override
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(CategoryMapper::mapToCategoryResponse)
                 .toList();
     }
 
+    @Override
     public CategoryResponse getCategoryById(Long id) {
         var entity = categoryRepository.findById(id)
                 .orElseThrow(
@@ -67,6 +67,7 @@ public class CategoryService {
         return mapToCategoryResponse(entity);
     }
 
+    @Override
     public void deleteCategory(Long id) {
         var entity = categoryRepository.findById(id)
                 .orElseThrow(

@@ -1,9 +1,9 @@
 package az.company.userservice.rabbit.listener;
 
-import az.company.userservice.dao.entity.BorrowsHistoryEntity;
+import az.company.userservice.dao.entity.BorrowHistoryEntity;
 import az.company.userservice.dao.repository.BorrowHistoryRepository;
 import az.company.userservice.dao.repository.UserRepository;
-import az.company.userservice.exception.UserNotFoundException;
+import az.company.userservice.exception.NotFoundException;
 import az.company.userservice.model.dto.BorrowEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -25,12 +25,12 @@ public class BorrowListener {
     public void listen(BorrowEvent borrowEvent) {
         var userEntity = userRepository.findById(borrowEvent.getUserId())
                 .orElseThrow(
-                        () -> new UserNotFoundException(
+                        () -> new NotFoundException(
                                 USER_NOT_FOUND.name(),
                                 format(USER_NOT_FOUND.getMessage(), borrowEvent.getId())
                         )
                 );
-        var borrowHistoryEntity = BorrowsHistoryEntity.builder()
+        var borrowHistoryEntity = BorrowHistoryEntity.builder()
                 .bookId(borrowEvent.getBookId())
                 .borrowedAt(borrowEvent.getBorrowedAt())
                 .returnedAt(borrowEvent.getReturnedAt())

@@ -1,5 +1,4 @@
-package az.company.userservice.service;
-import az.company.userservice.security.UserPrincipal;
+package az.company.userservice.security.service;
 import az.company.userservice.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,12 +19,14 @@ public class JwtService {
     private String key;
     @Value("${jwt.access-token-expiration}")
     private Long accessTokenExpiration;
+    @Value("${jwt.refresh-token-expiration}")
+    private Long refreshTokenExpiration;
 
     public SecretKey secretKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
     }
 
-    public String generateAccesToken(UserPrincipal userPrincipal) {
+    public String generateAccessToken(UserPrincipal userPrincipal) {
         return Jwts.builder()
                 .subject(userPrincipal.getUsername())
                 .claim("roles", userPrincipal.getRoles())
@@ -34,6 +35,20 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + (accessTokenExpiration * 60 * 60 * 1000)))
                 .signWith(secretKey())
                 .compact();
+    }
+
+    public String generateRefreshToken(UserPrincipal userPrincipal) {
+        return Jwts.builder()
+                .subject(userPrincipal.getUsername())
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + (refreshTokenExpiration * 60 * 60 * 1000)))
+                .signWith(secretKey())
+                .compact();
+    }
+
+    public Boolean isRefreshTokenValid(String token) {
+        return "refresh".equals(extractAllClaims(token).get("type", String.class));
     }
 
     private Claims extractAllClaims(String token) {
@@ -53,6 +68,7 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
+
         return extractAllClaims(token).getExpiration().after(new Date());
     }
 }
